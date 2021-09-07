@@ -1,5 +1,5 @@
-const catchErrors = (error) => {
-  let errorMsg = '';
+const catchErrors = error => {
+  let errorMsg;
 
   if (error.response) {
     // If the request was made and the server not responded with a status code in the range of 2xx
@@ -18,7 +18,7 @@ const catchErrors = (error) => {
 
     console.error(errorMsg);
   }
- return errorMsg;
+  return errorMsg;
 };
 
 export default catchErrors;
