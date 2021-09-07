@@ -11,6 +11,7 @@ connectDb();
 app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
+// server
 nextApp.prepare().then(() => {
   app.use("/api/signup", require("./api/signup"));
   app.use("/api/auth", require("./api/auth"));

@@ -1,9 +1,9 @@
 import React from "react";
-import HeadTags from "./HeadTags";
-import Navbar from "./Navbar";
 import { Container } from "semantic-ui-react";
 import nprogress from "nprogress";
 import Router from "next/router";
+import HeadTags from "./HeadTags";
+import Navbar from "./Navbar";
 
 function Layout({ children }) {
   Router.onRouteChangeStart = () => nprogress.start();
