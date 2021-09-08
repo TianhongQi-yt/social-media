@@ -35,6 +35,7 @@ function Signup() {
     setUser(prev => ({ ...prev, [name]: value }));
   };
 
+  // control icon for showing the password
   const [showSocialLinks, setShowSocialLinks] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -87,6 +88,7 @@ function Signup() {
     username === "" ? setUsernameAvailable(false) : checkUsername();
   }, [username]);
 
+  // submit the form
   const handleSubmit = async e => {
     e.preventDefault();
     setFormLoading(true);
@@ -125,6 +127,7 @@ function Signup() {
             setHighlighted={setHighlighted}
             handleChange={handleChange}
           />
+          {/* name */}
           <Form.Input
             required
             label="Name"
@@ -136,7 +139,7 @@ function Signup() {
             icon="user"
             iconPosition="left"
           />
-
+          {/* email */}
           <Form.Input
             required
             label="Email"
@@ -149,7 +152,7 @@ function Signup() {
             iconPosition="left"
             type="email"
           />
-
+          {/* password */}
           <Form.Input
             label="Password"
             placeholder="Password"
@@ -167,7 +170,7 @@ function Signup() {
             type={showPassword ? "text" : "password"}
             required
           />
-
+          {/* username */}
           <Form.Input
             loading={usernameLoading}
             error={!usernameAvailable}

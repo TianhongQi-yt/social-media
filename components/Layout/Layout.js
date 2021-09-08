@@ -6,6 +6,7 @@ import HeadTags from "./HeadTags";
 import Navbar from "./Navbar";
 
 function Layout({ children }) {
+  // progress bar
   Router.onRouteChangeStart = () => nprogress.start();
   Router.onRouteChangeComplete = () => nprogress.done();
   Router.onRouteChangeError = () => nprogress.done();

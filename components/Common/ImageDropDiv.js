@@ -22,7 +22,7 @@ function ImageDropDiv({
             name="media"
             ref={inputRef}
           />
-
+          {/* HTML drag and drop api */}
           <div
             onDragOver={e => {
               e.preventDefault();
@@ -35,7 +35,8 @@ function ImageDropDiv({
             onDrop={e => {
               e.preventDefault();
               setHighlighted(true);
-
+              
+              // an iterable object to convert to an array
               const droppedFile = Array.from(e.dataTransfer.files);
               setMedia(droppedFile[0]);
               setMediaPreview(URL.createObjectURL(droppedFile[0]));
@@ -49,7 +50,7 @@ function ImageDropDiv({
                       style={{ cursor: "pointer" }}
                       onClick={() => inputRef.current.click()}
                     />
-                    Drag n Drop or Click To Upload Image
+                    Drag and Drop or Click To Upload Image
                   </Header>
                 </Segment>
               </>
