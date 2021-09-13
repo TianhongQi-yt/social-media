@@ -64,6 +64,7 @@ router.post("/", async (req, res) => {
       profilePicUrl: req.body.profilePicUrl || userPng
     });
 
+    // 密码加密
     user.password = await bcrypt.hash(password, 10);
     await user.save();
 
@@ -81,6 +82,7 @@ router.post("/", async (req, res) => {
     await new ProfileModel(profileFields).save();
     await new FollowerModel({ user: user._id, followers: [], following: [] }).save();
 
+    // JWt token登录验证
     const payload = { userId: user._id };
     jwt.sign(payload, process.env.jwtSecret, { expiresIn: "2d" }, (err, token) => {
       if (err) throw err;

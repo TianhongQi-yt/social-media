@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 const ProfileSchema = new Schema(
   {
+    // related to User schema
     user: { type: Schema.Types.ObjectId, ref: "User" },
 
     bio: { type: String, required: true },

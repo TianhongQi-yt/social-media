@@ -51,6 +51,7 @@ function Signup() {
   const [highlighted, setHighlighted] = useState(false);
   const inputRef = useRef();
 
+  // 前端用户校验
   useEffect(() => {
     const isUser = Object.values({ name, email, password, bio }).every(item =>
       Boolean(item)
@@ -88,7 +89,7 @@ function Signup() {
     username === "" ? setUsernameAvailable(false) : checkUsername();
   }, [username]);
 
-  // submit the form
+  // 提交表单
   const handleSubmit = async e => {
     e.preventDefault();
     setFormLoading(true);
