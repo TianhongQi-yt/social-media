@@ -5,7 +5,7 @@ const FollowerModel = require("../models/FollowerModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const isEmail = require("validator/lib/isEmail");
-const authMiddleware = require('../middleware/authMiddleware')
+const authMiddleware = require('../middleware/authMiddleware');
 
 router.get("/", authMiddleware, async (req, res) => {
   const { userId } = req;
