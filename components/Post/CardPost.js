@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   Icon,
@@ -14,18 +14,54 @@ import PostComments from "./PostComments";
 import CommentInputField from "./CommentInputField";
 import calculateTime from "../../utils/calculateTime";
 import Link from "next/link";
+import { deletePost, likePost } from "../../utils/postActions";
+import LikesList from "./LikesList";
+import ImageModal from "./ImageModal";
+import NoImageModal from "./NoImageModal";
 
-const CardPost = () => {
+function CardPost({ post, user, setPosts, setShowToastr }) {
   const [likes, setLikes] = useState(post.likes);
+
   const isLiked =
     likes.length > 0 &&
     likes.filter((like) => like.user === user._id).length > 0;
+
   const [comments, setComments] = useState(post.comments);
+
   const [error, setError] = useState(null);
+
+  const [showModal, setShowModal] = useState(false);
+
+  const addPropsToModal = () => ({
+    post,
+    user,
+    setLikes,
+    likes,
+    isLiked,
+    comments,
+    setComments,
+  });
 
   return (
     <>
-      <Segment basic> 
+      {showModal && (
+        <Modal
+          open={showModal}
+          closeIcon
+          closeOnDimmerClick
+          onClose={() => setShowModal(false)}
+        >
+          <Modal.Content>
+            {post.picUrl ? (
+              <ImageModal {...addPropsToModal()} />
+            ) : (
+              <NoImageModal {...addPropsToModal()} />
+            )}
+          </Modal.Content>
+        </Modal>
+      )}
+
+      <Segment basic>
         <Card color="teal" fluid>
           {post.picUrl && (
             <Image
@@ -40,7 +76,12 @@ const CardPost = () => {
           )}
 
           <Card.Content>
-            <Image floated="left" src={post.user.profilePicUrl} avatar circular />
+            <Image
+              floated="left"
+              src={post.user.profilePicUrl}
+              avatar
+              circular
+            />
 
             {(user.role === "root" || post.user._id === user._id) && (
               <>
@@ -54,7 +95,8 @@ const CardPost = () => {
                       size="mini"
                       floated="right"
                     />
-                  }>
+                  }
+                >
                   <Header as="h4" content="Are you sure?" />
                   <p>This action is irreversible!</p>
 
@@ -62,7 +104,9 @@ const CardPost = () => {
                     color="red"
                     icon="trash"
                     content="Delete"
-                    onClick={() => deletePost(post._id, setPosts, setShowToastr)}
+                    onClick={() =>
+                      deletePost(post._id, setPosts, setShowToastr)
+                    }
                   />
                 </Popup>
               </>
@@ -82,8 +126,9 @@ const CardPost = () => {
               style={{
                 fontSize: "17px",
                 letterSpacing: "0.1px",
-                wordSpacing: "0.35px"
-              }}>
+                wordSpacing: "0.35px",
+              }}
+            >
               {post.text}
             </Card.Description>
           </Card.Content>
@@ -149,8 +194,9 @@ const CardPost = () => {
           </Card.Content>
         </Card>
       </Segment>
+      <Divider hidden />
     </>
   );
-};
+}
 
 export default CardPost;
