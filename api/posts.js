@@ -117,7 +117,6 @@ router.delete("/:postId", authMiddleware, async (req, res) => {
 });
 
 // LIKE A POST
-
 router.post("/like/:postId", authMiddleware, async (req, res) => {
   try {
     const { postId } = req.params;
@@ -146,7 +145,6 @@ router.post("/like/:postId", authMiddleware, async (req, res) => {
 });
 
 // UNLIKE A POST
-
 router.put("/unlike/:postId", authMiddleware, async (req, res) => {
   try {
     const { postId } = req.params;
@@ -178,7 +176,6 @@ router.put("/unlike/:postId", authMiddleware, async (req, res) => {
 });
 
 // GET ALL LIKES OF A POST
-
 router.get("/like/:postId", authMiddleware, async (req, res) => {
   try {
     const { postId } = req.params;
@@ -196,11 +193,9 @@ router.get("/like/:postId", authMiddleware, async (req, res) => {
 });
 
 // CREATE A COMMENT
-
 router.post("/comment/:postId", authMiddleware, async (req, res) => {
   try {
     const { postId } = req.params;
-
     const { text } = req.body;
 
     if (text.length < 1)
@@ -223,12 +218,11 @@ router.post("/comment/:postId", authMiddleware, async (req, res) => {
     return res.status(200).json(newComment._id);
   } catch (error) {
     console.error(error);
-    return res.status(500).send(`Server error`);
+    return res.status(500).send(`Server create comment error`);
   }
 });
 
 // DELETE A COMMENT
-
 router.delete("/:postId/:commentId", authMiddleware, async (req, res) => {
   try {
     const { postId, commentId } = req.params;
@@ -265,7 +259,7 @@ router.delete("/:postId/:commentId", authMiddleware, async (req, res) => {
     await deleteComment();
   } catch (error) {
     console.error(error);
-    return res.status(500).send(`Server error`);
+    return res.status(500).send(`Server delete comment error`);
   }
 });
 
