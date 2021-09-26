@@ -43,7 +43,6 @@ export const likePost = async (postId, userId, setLikes, like = true) => {
       await Axios.post(`/like/${postId}`);
       setLikes(prev => [...prev, { user: userId }]);
     }
-    //
     else if (!like) {
       await Axios.put(`/unlike/${postId}`);
       setLikes(prev => prev.filter(like => like.user !== userId));
