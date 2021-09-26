@@ -107,7 +107,7 @@ function CreatePost({ user, setPosts }) {
         <div
           onClick={() => inputRef.current.click()}
           style={addStyles()}
-          onDrag={e => {
+          onDragOver={e => {
             e.preventDefault();
             setHighlighted(true);
           }}
