@@ -29,8 +29,6 @@ function Index({ user, postsData, errorLoading }) {
     showToastr && setTimeout(() => setShowToastr(false), 3000);
   }, [showToastr]);
 
-  if (posts.length === 0 || errorLoading) return <NoPosts />;
-
   // 可以直接用get请求对应资源，也可以增加 params
   const fetchDataOnScroll = async () => {
     try {
