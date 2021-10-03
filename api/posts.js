@@ -49,7 +49,6 @@ router.get("/", authMiddleware, async (req, res) => {
         .populate("user")
         .populate("comments.user");
     }
-    //
     else {
       const skips = size * (number - 1);
       posts = await PostModel.find()
