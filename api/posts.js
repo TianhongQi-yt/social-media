@@ -16,7 +16,7 @@ router.post("/", authMiddleware, async (req, res) => {
   try {
     const newPost = {
       user: req.userId,
-      text
+      text,
     };
     if (location) newPost.location = location;
     if (picUrl) newPost.picUrl = picUrl;
@@ -40,29 +40,64 @@ router.get("/", authMiddleware, async (req, res) => {
   const size = 8;
 
   try {
-    let posts;
+    const { userId } = req;
+    const loggedUser = await FollowerModel.findOne({ user: userId }).select(
+      "-followers"
+    );
+    let posts = [];
 
     if (number === 1) {
-      posts = await PostModel.find()
-        .limit(size)
-        .sort({ createdAt: -1 })
-        .populate("user")
-        .populate("comments.user");
-    }
-    else {
+      if (loggedUser.following.length > 0) {
+        posts = await PostModel.find({
+          user: {
+            $in: [
+              userId,
+              ...loggedUser.following.map((following) => following.user),
+            ],
+          },
+        })
+          .limit(size)
+          .sort({ createAt: -1 })
+          .populate("user")
+          .populate("comments.user");
+      } else {
+        posts = await PostModel.find({ user: userId })
+          .limit(size)
+          .sort({ createAt: -1 })
+          .populate("user")
+          .populate("comments.user");
+      }
+    } else {
       const skips = size * (number - 1);
-      posts = await PostModel.find()
-        .skip(skips)
-        .limit(size)
-        .sort({ createdAt: -1 })
-        .populate("user")
-        .populate("comments.user");
+
+      if (loggedUser.following.length > 0) {
+        posts = await PostModel.find({
+          user: {
+            $in: [
+              userId,
+              ...loggedUser.following.map((following) => following.user),
+            ],
+          },
+        })
+          .skip(skips)
+          .limit(size)
+          .sort({ createAt: -1 })
+          .populate("user")
+          .populate("comments.user");
+      } else {
+        posts = await PostModel.find({ user: userId })
+          .skip(skips)
+          .limit(size)
+          .sort({ createAt: -1 })
+          .populate("user")
+          .populate("comments.user");
+      }
     }
 
     return res.json(posts);
   } catch (error) {
     console.error(error);
-    return res.status(500).send(`Server error`);
+    return res.status(500).send(`Server (find posts) error`);
   }
 });
 
@@ -127,7 +162,7 @@ router.post("/like/:postId", authMiddleware, async (req, res) => {
     }
 
     const isLiked =
-      post.likes.filter(like => like.user.toString() === userId).length > 0;
+      post.likes.filter((like) => like.user.toString() === userId).length > 0;
 
     if (isLiked) {
       return res.status(401).send("Post already liked");
@@ -155,13 +190,15 @@ router.put("/unlike/:postId", authMiddleware, async (req, res) => {
     }
 
     const isLiked =
-      post.likes.filter(like => like.user.toString() === userId).length === 0;
+      post.likes.filter((like) => like.user.toString() === userId).length === 0;
 
     if (isLiked) {
       return res.status(401).send("Post not liked before");
     }
 
-    const index = post.likes.map(like => like.user.toString()).indexOf(userId);
+    const index = post.likes
+      .map((like) => like.user.toString())
+      .indexOf(userId);
 
     await post.likes.splice(index, 1);
 
@@ -208,7 +245,7 @@ router.post("/comment/:postId", authMiddleware, async (req, res) => {
       _id: uuid(),
       text,
       user: req.userId,
-      date: Date.now()
+      date: Date.now(),
     };
 
     await post.comments.unshift(newComment);
@@ -230,7 +267,7 @@ router.delete("/:postId/:commentId", authMiddleware, async (req, res) => {
     const post = await PostModel.findById(postId);
     if (!post) return res.status(404).send("Post not found");
 
-    const comment = post.comments.find(comment => comment._id === commentId);
+    const comment = post.comments.find((comment) => comment._id === commentId);
     if (!comment) {
       return res.status(404).send("No Comment found");
     }
@@ -238,7 +275,9 @@ router.delete("/:postId/:commentId", authMiddleware, async (req, res) => {
     const user = await UserModel.findById(userId);
 
     const deleteComment = async () => {
-      const indexOf = post.comments.map(comment => comment._id).indexOf(commentId);
+      const indexOf = post.comments
+        .map((comment) => comment._id)
+        .indexOf(commentId);
 
       await post.comments.splice(indexOf, 1);
 
