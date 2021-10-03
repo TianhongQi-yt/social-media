@@ -61,15 +61,15 @@ const Followers = ({
                       icon={isFollowing ? "check" : "add user"}
                       content={isFollowing ? "Following" : "Follow"}
                       disabled={followLoading}
-                      onClick={() => {
+                      onClick={async () => {
                         setFollowLoading(true);
 
                         isFollowing
-                          ? unfollowUser(
+                          ? await unfollowUser(
                               profileFollower.user._id,
                               setUserFollowStats
                             )
-                          : followUser(
+                          : await followUser(
                               profileFollower.user._id,
                               setUserFollowStats
                             );
