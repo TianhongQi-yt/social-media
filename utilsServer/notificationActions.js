@@ -92,22 +92,20 @@ const newCommentNotification = async (
 
 const removeCommentNotification = async (postId, commentId, userId, userToNotifyId) => {
   try {
-    const user = await NotificationModel.findOne({ user: userToNotifyId });
-
-    const notificationToRemove = await user.notifications.find(
-      notification =>
-        notification.type === "newComment" &&
-        notification.user.toString() === userId &&
-        notification.post.toString() === postId &&
-        notification.commentId === commentId
+    await NotificationModel.findOneAndUpdate(
+      { user: userToNotifyId },
+      {
+        $pull: {
+          notifications: {
+            type: "newComment",
+            user: userId,
+            post: postId,
+            commentId: commentId
+          }
+        }
+      }
     );
-
-    const indexOf = await user.notifications
-      .map(notification => notification._id.toString())
-      .indexOf(notificationToRemove._id.toString());
-
-    await user.notifications.splice(indexOf, 1);
-    await user.save();
+    return;
   } catch (error) {
     console.error(error);
   }
