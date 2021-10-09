@@ -134,20 +134,12 @@ const newFollowerNotification = async (userId, userToNotifyId) => {
 
 const removeFollowerNotification = async (userId, userToNotifyId) => {
   try {
-    const user = await NotificationModel.findOne({ user: userToNotifyId });
-
-    const notificationToRemove = await user.notifications.find(
-      notification =>
-        notification.type === "newFollower" && notification.user.toString() === userId
+   await NotificationModel.findOneAndUpdate(
+      { user: userToNotifyId },
+      { $pull: { notifications: { type: "newFollower", user: userId } } }
     );
-
-    const indexOf = await user.notifications
-      .map(notification => notification._id.toString())
-      .indexOf(notificationToRemove._id.toString());
-
-    await user.notifications.splice(indexOf, 1);
-
-    await user.save();
+ 
+    return;
   } catch (error) {
     console.error(error);
   }
