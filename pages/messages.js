@@ -8,6 +8,12 @@ import { Segment, Header, Divider, Comment, Grid } from "semantic-ui-react";
 import Chat from "../components/Chats/Chat";
 import ChatListSearch from "../components/Chats/ChatListSearch";
 import { NoMessages } from "../components/Layout/NoData";
+import Banner from "../components/Messages/Banner";
+import MessageInputField from "../components/Messages/MessageInputField";
+import Message from "../components/Messages/Message";
+import getUserInfo from "../utils/getUserInfo";
+import newMsgSound from "../utils/newMsgSound";
+import cookie from "js-cookie";
 
 function Message({ chatsData }) {
   const [chats, setChats] = useState(chatsData);
@@ -79,6 +85,16 @@ function Message({ chatsData }) {
 
     if (socket.current && router.query.message) loadMessages();
   }, [router.query.message]);
+
+  const sendMsg = msg => {
+    if (socket.current) {
+      socket.current.emit("sendNewMsg", {
+        userId: user._id,
+        msgSendToUserId: openChatId.current,
+        msg
+      });
+    }
+  };
 
   return (
     <>
