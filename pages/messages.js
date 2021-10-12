@@ -13,14 +13,72 @@ function Message({ chatsData }) {
   const [chats, setChats] = useState(chatsData);
   const router = useRouter();
 
+  const socket = useRef();
+  const [connectedUsers, setConnectedUsers] = useState([]);
+
+  const [messages, setMessages] = useState([]);
+  const [bannerData, setBannerData] = useState({ name: "", profilePicUrl: "" });
+  const openChatId = useRef("");
+
   // CONNECTION useEffect
   useEffect(() => {
+    // 建立io
+    if (!socket.current) {
+      socket.current = io(baseUrl);
+    }
+
+    if (socket.current) {
+      socket.current.emit("join", { userId: user._id });
+
+      socket.current.on("connectedUsers", ({ users }) => {
+        users.length > 0 && setConnectedUsers(users);
+      });
+
+      if (chats.length > 0 && !router.query.message) {
+        router.push(`/messages?message=${chats[0].messagesWith}`, undefined, {
+          shallow: true,
+        });
+      }
+    }
+
     if (chats.length > 0 && !router.query.message) {
       router.push(`/messages?message=${chats[0].messagesWith}`, undefined, {
         shallow: true,
       });
     }
   }, []);
+
+  // LOAD MESSAGES useEffect
+  useEffect(() => {
+    const loadMessages = () => {
+      socket.current.emit("loadMessages", {
+        userId: user._id,
+        messagesWith: router.query.message,
+      });
+
+      socket.current.on("messagesLoaded", async ({ chat }) => {
+        setMessages(chat.messages);
+        setBannerData({
+          name: chat.messagesWith.name,
+          profilePicUrl: chat.messagesWith.profilePicUrl,
+        });
+
+        openChatId.current = chat.messagesWith._id;
+        divRef.current && scrollDivToBottom(divRef);
+      });
+
+      socket.current.on("noChatFound", async () => {
+        const { name, profilePicUrl } = await getUserInfo(router.query.message);
+
+        setBannerData({ name, profilePicUrl });
+        setMessages([]);
+
+        openChatId.current = router.query.message;
+      });
+    };
+
+    if (socket.current && router.query.message) loadMessages();
+  }, [router.query.message]);
 
   return (
     <>
@@ -114,3 +172,5 @@ Messages.getInitialProps = async (ctx) => {
     return { errorLoading: true };
   }
 };
+
+export default Messages;
