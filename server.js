@@ -42,6 +42,20 @@ io.on("connection", (socket) => {
       : socket.emit("noChatFound");
   });
 
+  socket.on("sendNewMsg", async ({ userId, msgSendToUserId, msg }) => {
+    const { newMsg, error } = await sendMsg(userId, msgSendToUserId, msg);
+    const receiverSocket = findConnectedUser(msgSendToUserId);
+
+    if (receiverSocket) {
+      // WHEN YOU WANT TO SEND MESSAGE TO A PARTICULAR SOCKET
+      io.to(receiverSocket.socketId).emit("newMsgReceived", { newMsg });
+    } else {
+      await setMsgToUnread(msgSendToUserId);
+    }
+
+    !error && socket.emit("msgSent", { newMsg });
+  });
+
   socket.on("disconnect", () => removeUser(socket.id));
 });
 // server

@@ -15,7 +15,7 @@ import getUserInfo from "../utils/getUserInfo";
 import newMsgSound from "../utils/newMsgSound";
 import cookie from "js-cookie";
 
-function Message({ chatsData }) {
+function Messages({ chatsData }) {
   const [chats, setChats] = useState(chatsData);
   const router = useRouter();
 
@@ -86,15 +86,95 @@ function Message({ chatsData }) {
     if (socket.current && router.query.message) loadMessages();
   }, [router.query.message]);
 
-  const sendMsg = msg => {
+  const sendMsg = (msg) => {
     if (socket.current) {
       socket.current.emit("sendNewMsg", {
         userId: user._id,
         msgSendToUserId: openChatId.current,
-        msg
+        msg,
       });
     }
   };
+
+  // Confirming msg is sent and receving the messages useEffect
+  useEffect(() => {
+    if (socket.current) {
+      socket.current.on("msgSent", ({ newMsg }) => {
+        if (newMsg.receiver === openChatId.current) {
+          setMessages((prev) => [...prev, newMsg]);
+
+          setChats((prev) => {
+            const previousChat = prev.find(
+              (chat) => chat.messagesWith === newMsg.receiver
+            );
+            previousChat.lastMessage = newMsg.msg;
+            previousChat.date = newMsg.date;
+
+            return [...prev];
+          });
+        }
+      });
+
+      socket.current.on("newMsgReceived", async ({ newMsg }) => {
+        let senderName;
+
+        // WHEN CHAT WITH SENDER IS CURRENTLY OPENED INSIDE YOUR BROWSER
+        if (newMsg.sender === openChatId.current) {
+          setMessages((prev) => [...prev, newMsg]);
+
+          setChats((prev) => {
+            const previousChat = prev.find(
+              (chat) => chat.messagesWith === newMsg.sender
+            );
+            previousChat.lastMessage = newMsg.msg;
+            previousChat.date = newMsg.date;
+
+            senderName = previousChat.name;
+
+            return [...prev];
+          });
+        } else {
+          const ifPreviouslyMessaged =
+            chats.filter((chat) => chat.messagesWith === newMsg.sender).length >
+            0;
+
+          if (ifPreviouslyMessaged) {
+            setChats((prev) => {
+              const previousChat = prev.find(
+                (chat) => chat.messagesWith === newMsg.sender
+              );
+              previousChat.lastMessage = newMsg.msg;
+              previousChat.date = newMsg.date;
+
+              senderName = previousChat.name;
+
+              return [
+                previousChat,
+                ...prev.filter((chat) => chat.messagesWith !== newMsg.sender),
+              ];
+            });
+          }
+
+          //IF NO PREVIOUS CHAT WITH THE SENDER
+          else {
+            const { name, profilePicUrl } = await getUserInfo(newMsg.sender);
+            senderName = name;
+
+            const newChat = {
+              messagesWith: newMsg.sender,
+              name,
+              profilePicUrl,
+              lastMessage: newMsg.msg,
+              date: newMsg.date,
+            };
+            setChats((prev) => [newChat, ...prev]);
+          }
+        }
+
+        newMsgSound(senderName);
+      });
+    }
+  }, []);
 
   return (
     <>
