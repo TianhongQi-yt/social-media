@@ -15,6 +15,10 @@ import getUserInfo from "../utils/getUserInfo";
 import newMsgSound from "../utils/newMsgSound";
 import cookie from "js-cookie";
 
+// 滚动
+const scrollDivToBottom = divRef =>
+  divRef.current !== null && divRef.current.scrollIntoView({ behaviour: "smooth" });
+
 function Messages({ chatsData }) {
   const [chats, setChats] = useState(chatsData);
   const router = useRouter();
@@ -25,6 +29,8 @@ function Messages({ chatsData }) {
   const [messages, setMessages] = useState([]);
   const [bannerData, setBannerData] = useState({ name: "", profilePicUrl: "" });
   const openChatId = useRef("");
+
+  const divRef = useRef();
 
   // CONNECTION useEffect
   useEffect(() => {
@@ -80,6 +86,7 @@ function Messages({ chatsData }) {
         setMessages([]);
 
         openChatId.current = router.query.message;
+        divRef.current && scrollDivToBottom(divRef);
       });
     };
 
@@ -175,6 +182,25 @@ function Messages({ chatsData }) {
       });
     }
   }, []);
+
+  // SCROLL useEffect
+  useEffect(() => {
+    messages.length > 0 && scrollDivToBottom(divRef);
+  }, [messages]);
+
+  const deleteMsg = messageId => {
+    if (socket.current) {
+      socket.current.emit("deleteMsg", {
+        userId: user._id,
+        messagesWith: openChatId.current,
+        messageId
+      });
+
+      socket.current.on("msgDeleted", () => {
+        setMessages(prev => prev.filter(message => message._id !== messageId));
+      });
+    }
+  };
 
   return (
     <>

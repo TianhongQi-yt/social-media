@@ -1,6 +1,7 @@
 const ChatModel = require("../models/ChatModel");
 const UserModel = require("../models/UserModel");
 
+// Load messages
 const loadMessages = async (userId, messagesWith) => {
   try {
     const user = await ChatModel.findOne({ user: userId }).populate(
@@ -85,6 +86,7 @@ const setMsgToUnread = async (userId) => {
   }
 };
 
+// Delete a mssage
 const deleteMsg = async (userId, messagesWith, messageId) => {
   try {
     const user = await ChatModel.findOne({ user: userId });
@@ -115,7 +117,7 @@ const deleteMsg = async (userId, messagesWith, messageId) => {
 
     return { success: true };
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 

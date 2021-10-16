@@ -24,6 +24,8 @@ const {
 } = require("./utilsServer/messageActions");
 
 io.on("connection", (socket) => {
+
+  // JOIN
   socket.on("join", async ({ userId }) => {
     const users = await addUser(userId, socket.id);
 
@@ -34,6 +36,7 @@ io.on("connection", (socket) => {
     }, 10000);
   });
 
+  // LOAD messages
   socket.on("loadMessages", async ({ userId, messagesWith }) => {
     const { chat, error } = await loadMessages(userId, messagesWith);
 
@@ -42,6 +45,7 @@ io.on("connection", (socket) => {
       : socket.emit("noChatFound");
   });
 
+  // SEND new messages
   socket.on("sendNewMsg", async ({ userId, msgSendToUserId, msg }) => {
     const { newMsg, error } = await sendMsg(userId, msgSendToUserId, msg);
     const receiverSocket = findConnectedUser(msgSendToUserId);
@@ -54,6 +58,13 @@ io.on("connection", (socket) => {
     }
 
     !error && socket.emit("msgSent", { newMsg });
+  });
+
+  // DELETE messages
+  socket.on("deleteMsg", async ({ userId, messagesWith, messageId }) => {
+    const { success } = await deleteMsg(userId, messagesWith, messageId);
+
+    if (success) socket.emit("msgDeleted");
   });
 
   socket.on("disconnect", () => removeUser(socket.id));
