@@ -74,7 +74,7 @@ router.delete(`/:messagesWith`, authMiddleware, async (req, res) => {
     return res.status(200).send("Chat deleted");
   } catch (error) {
     console.error(error);
-    return res.status(500).send("Server Error");
+    return res.status(500).send("Server (Delete chat) Error");
   }
 });
 

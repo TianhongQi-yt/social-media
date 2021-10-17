@@ -202,6 +202,19 @@ function Messages({ chatsData }) {
     }
   };
 
+  const deleteChat = async messagesWith => {
+    try {
+      await axios.delete(`${baseUrl}/api/chats/${messagesWith}`, {
+        headers: { Authorization: cookie.get("token") }
+      });
+
+      setChats(prev => prev.filter(chat => chat.messagesWith !== messagesWith));
+      router.push("/messages", undefined, { shallow: true });
+    } catch (error) {
+      alert("Error deleting chat");
+    }
+  };
+
   return (
     <>
       <Segment padded basic size="large" style={{ marginTop: "5px" }}>
