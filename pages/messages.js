@@ -16,8 +16,9 @@ import newMsgSound from "../utils/newMsgSound";
 import cookie from "js-cookie";
 
 // 滚动
-const scrollDivToBottom = divRef =>
-  divRef.current !== null && divRef.current.scrollIntoView({ behaviour: "smooth" });
+const scrollDivToBottom = (divRef) =>
+  divRef.current !== null &&
+  divRef.current.scrollIntoView({ behaviour: "smooth" });
 
 function Messages({ chatsData }) {
   const [chats, setChats] = useState(chatsData);
@@ -188,27 +189,31 @@ function Messages({ chatsData }) {
     messages.length > 0 && scrollDivToBottom(divRef);
   }, [messages]);
 
-  const deleteMsg = messageId => {
+  const deleteMsg = (messageId) => {
     if (socket.current) {
       socket.current.emit("deleteMsg", {
         userId: user._id,
         messagesWith: openChatId.current,
-        messageId
+        messageId,
       });
 
       socket.current.on("msgDeleted", () => {
-        setMessages(prev => prev.filter(message => message._id !== messageId));
+        setMessages((prev) =>
+          prev.filter((message) => message._id !== messageId)
+        );
       });
     }
   };
 
-  const deleteChat = async messagesWith => {
+  const deleteChat = async (messagesWith) => {
     try {
       await axios.delete(`${baseUrl}/api/chats/${messagesWith}`, {
-        headers: { Authorization: cookie.get("token") }
+        headers: { Authorization: cookie.get("token") },
       });
 
-      setChats(prev => prev.filter(chat => chat.messagesWith !== messagesWith));
+      setChats((prev) =>
+        prev.filter((chat) => chat.messagesWith !== messagesWith)
+      );
       router.push("/messages", undefined, { shallow: true });
     } catch (error) {
       alert("Error deleting chat");
@@ -218,12 +223,13 @@ function Messages({ chatsData }) {
   return (
     <>
       <Segment padded basic size="large" style={{ marginTop: "5px" }}>
-        <Header
-          icon="home"
-          content="Go Back!"
-          onClick={() => router.push("/")}
-          style={{ cursor: "pointer" }}
-        />
+        <a href="/">
+          <Header
+            icon="home"
+            content="Go Back!"
+            style={{ cursor: "pointer" }}
+          />
+        </a>
         <Divider hidden />
 
         <div style={{ marginBottom: "10px" }}>

@@ -4,10 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { logoutUser } from "../../utils/authUser";
 
-function SideMenu({ user: { unreadNotification, email, unreadMessage, username } }) {
+function SideMenu({
+  user: { unreadNotification, email, unreadMessage, username },
+}) {
   const router = useRouter();
 
-  const isActive = route => router.pathname === route;
+  const isActive = (route) => router.pathname === route;
 
   return (
     <>
@@ -15,7 +17,8 @@ function SideMenu({ user: { unreadNotification, email, unreadMessage, username }
         style={{ paddingTop: "1rem" }}
         size="big"
         verticalAlign="middle"
-        selection>
+        selection
+      >
         <Link href="/">
           <List.Item active={isActive("/")}>
             <Icon name="home" size="large" color={isActive("/") && "teal"} />
@@ -26,20 +29,18 @@ function SideMenu({ user: { unreadNotification, email, unreadMessage, username }
         </Link>
         <br />
 
-        <Link href="/messages">
-          <List.Item active={isActive("/messages")}>
-            <Icon
-              name={unreadMessage ? "hand point right" : "mail outline"}
-              size="large"
-              color={
-                (isActive("/messages") && "teal") || (unreadMessage && "orange")
-              }
-            />
-            <List.Content>
-              <List.Header content="Messages" />
-            </List.Content>
-          </List.Item>
-        </Link>
+        <List.Item active={isActive("/messages")} as="a" href="/messages">
+          <Icon
+            name={unreadMessage ? "hand point right" : "mail outline"}
+            size="large"
+            color={
+              (isActive("/messages") && "teal") || (unreadMessage && "orange")
+            }
+          />
+          <List.Content>
+            {pc && <List.Header content="Messages" />}
+          </List.Content>
+        </List.Item>
         <br />
 
         <Link href="/notifications">
