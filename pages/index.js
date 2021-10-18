@@ -84,8 +84,6 @@ function Index({ user, postsData, errorLoading }) {
     }
   };
 
-  if (posts.length === 0 || errorLoading) return <NoPosts />;
-
   useEffect(() => {
     if (socket.current) {
       socket.current.on(
