@@ -1,7 +1,15 @@
 {
+  "/[username]": "pages/[username].js",
   "/_app": "pages/_app.js",
-  "/_error": "pages/_error.js",
-  "/_document": "pages/_document.js",
+  "/": "pages/index.js",
+  "/login": "pages/login.js",
+  "/messages": "pages/messages.js",
+  "/notifications": "pages/notifications.js",
+  "/post/[postId]": "pages/post/[postId].js",
+  "/reset/[token]": "pages/reset/[token].js",
   "/reset": "pages/reset.js",
-  "/": "pages/index.js"
+  "/search": "pages/search.js",
+  "/signup": "pages/signup.js",
+  "/_error": "pages/_error.js",
+  "/_document": "pages/_document.js"
 }
