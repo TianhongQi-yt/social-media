@@ -8,7 +8,7 @@ import {
   Button,
   Popup,
   Header,
-  Modal,
+  Modal
 } from "semantic-ui-react";
 import PostComments from "./PostComments";
 import CommentInputField from "./CommentInputField";
@@ -19,16 +19,13 @@ import LikesList from "./LikesList";
 import ImageModal from "./ImageModal";
 import NoImageModal from "./NoImageModal";
 
-function CardPost({ post, user, setPosts, setShowToastr }) {
+function CardPost({ post, user, setPosts, setShowToastr, socket }) {
   const [likes, setLikes] = useState(post.likes);
 
   const isLiked =
-    likes.length > 0 &&
-    likes.filter((like) => like.user === user._id).length > 0;
+    likes.length > 0 && likes.filter(like => like.user === user._id).length > 0;
 
   const [comments, setComments] = useState(post.comments);
-
-  const [error, setError] = useState(null);
 
   const [showModal, setShowModal] = useState(false);
 
@@ -39,7 +36,7 @@ function CardPost({ post, user, setPosts, setShowToastr }) {
     likes,
     isLiked,
     comments,
-    setComments,
+    setComments
   });
 
   return (
@@ -76,12 +73,7 @@ function CardPost({ post, user, setPosts, setShowToastr }) {
           )}
 
           <Card.Content>
-            <Image
-              floated="left"
-              src={post.user.profilePicUrl}
-              avatar
-              circular
-            />
+            <Image floated="left" src={post.user.profilePicUrl} avatar circular />
 
             {(user.role === "root" || post.user._id === user._id) && (
               <>
@@ -104,9 +96,7 @@ function CardPost({ post, user, setPosts, setShowToastr }) {
                     color="red"
                     icon="trash"
                     content="Delete"
-                    onClick={() =>
-                      deletePost(post._id, setPosts, setShowToastr)
-                    }
+                    onClick={() => deletePost(post._id, setPosts, setShowToastr)}
                   />
                 </Popup>
               </>
@@ -126,7 +116,7 @@ function CardPost({ post, user, setPosts, setShowToastr }) {
               style={{
                 fontSize: "17px",
                 letterSpacing: "0.1px",
-                wordSpacing: "0.35px",
+                wordSpacing: "0.35px"
               }}
             >
               {post.text}
@@ -138,9 +128,25 @@ function CardPost({ post, user, setPosts, setShowToastr }) {
               name={isLiked ? "heart" : "heart outline"}
               color="red"
               style={{ cursor: "pointer" }}
-              onClick={() =>
-                likePost(post._id, user._id, setLikes, isLiked ? false : true)
-              }
+              onClick={() => {
+                if (socket.current) {
+                  socket.current.emit("likePost", {
+                    postId: post._id,
+                    userId: user._id,
+                    like: isLiked ? false : true
+                  });
+
+                  socket.current.on("postLiked", () => {
+                    if (isLiked) {
+                      setLikes(prev => prev.filter(like => like.user !== user._id));
+                    } else {
+                      setLikes(prev => [...prev, { user: user._id }]);
+                    }
+                  });
+                } else {
+                  likePost(post._id, user._id, setLikes, isLiked ? false : true);
+                }
+              }}
             />
 
             <LikesList
@@ -154,11 +160,7 @@ function CardPost({ post, user, setPosts, setShowToastr }) {
               }
             />
 
-            <Icon
-              name="comment outline"
-              style={{ marginLeft: "7px" }}
-              color="blue"
-            />
+            <Icon name="comment outline" style={{ marginLeft: "7px" }} color="blue" />
 
             {comments.length > 0 &&
               comments.map(
@@ -186,11 +188,7 @@ function CardPost({ post, user, setPosts, setShowToastr }) {
 
             <Divider hidden />
 
-            <CommentInputField
-              user={user}
-              postId={post._id}
-              setComments={setComments}
-            />
+            <CommentInputField user={user} postId={post._id} setComments={setComments} />
           </Card.Content>
         </Card>
       </Segment>

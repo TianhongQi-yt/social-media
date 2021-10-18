@@ -4,6 +4,7 @@ import baseUrl from "../utils/baseUrl";
 import { redirectUser } from "../utils/authUser";
 import Layout from "../components/Layout/Layout";
 import "semantic-ui-css/semantic.min.css";
+import "cropperjs/dist/cropper.css";
 
 const MyApp = ({ Component, pageProps }) => {
   return (

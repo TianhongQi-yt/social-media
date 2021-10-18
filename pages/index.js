@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 import baseUrl from "../utils/baseUrl";
@@ -9,17 +9,15 @@ import { parseCookies } from "nookies";
 import { NoPosts } from "../components/Layout/NoData";
 import { PostDeleteToastr } from "../components/Layout/Toastr";
 import InfiniteScroll from "react-infinite-scroll-component";
-import {
-  PlaceHolderPosts,
-  EndMessage,
-} from "../components/Layout/PlaceHolderGroup";
+import { PlaceHolderPosts, EndMessage } from "../components/Layout/PlaceHolderGroup";
 import cookie from "js-cookie";
 import getUserInfo from "../utils/getUserInfo";
 import MessageNotificationModal from "../components/Home/MessageNotificationModal";
 import newMsgSound from "../utils/newMsgSound";
+import NotificationPortal from "../components/Home/NotificationPortal";
 
 function Index({ user, postsData, errorLoading }) {
-  const [posts, setPosts] = useState(postsData);
+  const [posts, setPosts] = useState(postsData || []);
   const [showToastr, setShowToastr] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
@@ -30,7 +28,9 @@ function Index({ user, postsData, errorLoading }) {
   const [newMessageReceived, setNewMessageReceived] = useState(null);
   const [newMessageModal, showNewMessageModal] = useState(false);
 
-  // socket connection useEffect
+  const [newNotification, setNewNotification] = useState(null);
+  const [notificationPopup, showNotificationPopup] = useState(false);
+
   useEffect(() => {
     if (!socket.current) {
       socket.current = io(baseUrl);
@@ -46,7 +46,7 @@ function Index({ user, postsData, errorLoading }) {
           setNewMessageReceived({
             ...newMsg,
             senderName: name,
-            senderProfilePic: profilePicUrl,
+            senderProfilePic: profilePicUrl
           });
           showNewMessageModal(true);
         }
@@ -55,31 +55,60 @@ function Index({ user, postsData, errorLoading }) {
     }
 
     document.title = `Welcome, ${user.name.split(" ")[0]}`;
+
+    return () => {
+      if (socket.current) {
+        socket.current.emit("disconnect");
+        socket.current.off();
+      }
+    };
   }, []);
 
   useEffect(() => {
     showToastr && setTimeout(() => setShowToastr(false), 3000);
   }, [showToastr]);
 
-  // 可以直接用get请求对应资源，也可以增加 params
   const fetchDataOnScroll = async () => {
     try {
       const res = await axios.get(`${baseUrl}/api/posts`, {
         headers: { Authorization: cookie.get("token") },
-        params: { pageNumber },
+        params: { pageNumber }
       });
 
       if (res.data.length === 0) setHasMore(false);
 
-      setPosts((prev) => [...prev, ...res.data]);
-      setPageNumber((prev) => prev + 1);
+      setPosts(prev => [...prev, ...res.data]);
+      setPageNumber(prev => prev + 1);
     } catch (error) {
       alert("Error fetching Posts");
     }
   };
 
+  if (posts.length === 0 || errorLoading) return <NoPosts />;
+
+  useEffect(() => {
+    if (socket.current) {
+      socket.current.on(
+        "newNotificationReceived",
+        ({ name, profilePicUrl, username, postId }) => {
+          setNewNotification({ name, profilePicUrl, username, postId });
+
+          showNotificationPopup(true);
+        }
+      );
+    }
+  }, []);
+
   return (
     <>
+      {notificationPopup && newNotification !== null && (
+        <NotificationPortal
+          newNotification={newNotification}
+          notificationPopup={notificationPopup}
+          showNotificationPopup={showNotificationPopup}
+        />
+      )}
+
       {showToastr && <PostDeleteToastr />}
 
       {newMessageModal && newMessageReceived !== null && (
@@ -94,40 +123,37 @@ function Index({ user, postsData, errorLoading }) {
 
       <Segment>
         <CreatePost user={user} setPosts={setPosts} />
-        {posts.length === 0 || errorLoading ? (
-          <NoPosts />
-        ) : (
-          // 无限下拉滚动条
-          <InfiniteScroll
-            hasMore={hasMore}
-            next={fetchDataOnScroll}
-            loader={<PlaceHolderPosts />}
-            endMessage={<EndMessage />}
-            dataLength={posts.length}
-          >
-            {posts.map((post) => (
-              <CardPost
-                key={post._id}
-                post={post}
-                user={user}
-                setPosts={setPosts}
-                setShowToastr={setShowToastr}
-              />
-            ))}
-          </InfiniteScroll>
-        )}
+
+        <InfiniteScroll
+          hasMore={hasMore}
+          next={fetchDataOnScroll}
+          loader={<PlaceHolderPosts />}
+          endMessage={<EndMessage />}
+          dataLength={posts.length}
+        >
+          {posts.map(post => (
+            <CardPost
+              socket={socket}
+              key={post._id}
+              post={post}
+              user={user}
+              setPosts={setPosts}
+              setShowToastr={setShowToastr}
+            />
+          ))}
+        </InfiniteScroll>
       </Segment>
     </>
   );
 }
 
-Index.getInitialProps = async (ctx) => {
+Index.getInitialProps = async ctx => {
   try {
     const { token } = parseCookies(ctx);
 
     const res = await axios.get(`${baseUrl}/api/posts`, {
       headers: { Authorization: token },
-      params: { pageNumber: 1 },
+      params: { pageNumber: 1 }
     });
 
     return { postsData: res.data };
@@ -135,4 +161,5 @@ Index.getInitialProps = async (ctx) => {
     return { errorLoading: true };
   }
 };
+
 export default Index;

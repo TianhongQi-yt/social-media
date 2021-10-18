@@ -15,7 +15,7 @@ router.get("/", authMiddleware, async (req, res) => {
     return res.json(user.notifications);
   } catch (error) {
     console.error(error);
-    return res.status(500).send("Server Error");
+    return res.status(500).send("Server (get notifications) Error");
   }
 });
 
@@ -32,7 +32,7 @@ router.post("/", authMiddleware, async (req, res) => {
     return res.status(200).send("Updated");
   } catch (error) {
     console.error(error);
-    return res.status(500).send("Server Error");
+    return res.status(500).send("Server (update notifications) Error");
   }
 });
 

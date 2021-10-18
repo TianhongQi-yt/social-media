@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { Form, Button, Image, Divider, Message, Icon } from "semantic-ui-react";
 import uploadPic from "../../utils/uploadPicToCloudinary";
 import { submitNewPost } from "../../utils/postActions";
+import CropImageModal from "./CropImageModal";
 
 function CreatePost({ user, setPosts }) {
   const [newPost, setNewPost] = useState({ text: "", location: "" });
@@ -13,6 +14,8 @@ function CreatePost({ user, setPosts }) {
 
   const [media, setMedia] = useState(null);
   const [mediaPreview, setMediaPreview] = useState(null);
+
+  const [showModal, setShowModal] = useState(false);
 
   const handleChange = e => {
     const { name, value, files } = e.target;
@@ -58,12 +61,22 @@ function CreatePost({ user, setPosts }) {
     );
 
     setMedia(null);
-    setMediaPreview(null);
+    mediaPreview && URL.revokeObjectURL(mediaPreview);
+    setTimeout(() => setMediaPreview(null), 3000);
     setLoading(false);
   };
 
   return (
     <>
+      {showModal && (
+        <CropImageModal
+          mediaPreview={mediaPreview}
+          setMedia={setMedia}
+          showModal={showModal}
+          setShowModal={setShowModal}
+        />
+      )}
+
       <Form error={error !== null} onSubmit={handleSubmit}>
         <Message
           error
@@ -104,6 +117,7 @@ function CreatePost({ user, setPosts }) {
           />
         </Form.Group>
 
+        {/* drag and drop */}
         <div
           onClick={() => inputRef.current.click()}
           style={addStyles()}
@@ -138,6 +152,21 @@ function CreatePost({ user, setPosts }) {
             </>
           )}
         </div>
+
+        {mediaPreview !== null && (
+          <>
+            <Divider hidden />
+
+            <Button
+              content="Crop Image"
+              type="button"
+              primary
+              circular
+              onClick={() => setShowModal(true)}
+            />
+          </>
+        )}
+
         <Divider hidden />
 
         <Button

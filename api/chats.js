@@ -5,6 +5,7 @@ const UserModel = require("../models/UserModel");
 const authMiddleware = require("../middleware/authMiddleware");
 
 // GET ALL CHATS
+
 router.get("/", authMiddleware, async (req, res) => {
   try {
     const { userId } = req;
@@ -13,7 +14,6 @@ router.get("/", authMiddleware, async (req, res) => {
 
     let chatsToBeSent = [];
 
-    // 展示最近一条信息
     if (user.chats.length > 0) {
       chatsToBeSent = await user.chats.map(chat => ({
         messagesWith: chat.messagesWith._id,
@@ -27,11 +27,12 @@ router.get("/", authMiddleware, async (req, res) => {
     return res.json(chatsToBeSent);
   } catch (error) {
     console.error(error);
-    return res.status(500).send("Server (chat) Error");
+    return res.status(500).send("Server Error");
   }
 });
 
 // GET USER INFO
+
 router.get("/user/:userToFindId", authMiddleware, async (req, res) => {
   try {
     const user = await UserModel.findById(req.params.userToFindId);
@@ -48,6 +49,7 @@ router.get("/user/:userToFindId", authMiddleware, async (req, res) => {
 });
 
 // Delete a chat
+
 router.delete(`/:messagesWith`, authMiddleware, async (req, res) => {
   try {
     const { userId } = req;
@@ -74,7 +76,7 @@ router.delete(`/:messagesWith`, authMiddleware, async (req, res) => {
     return res.status(200).send("Chat deleted");
   } catch (error) {
     console.error(error);
-    return res.status(500).send("Server (Delete chat) Error");
+    return res.status(500).send("Server Error");
   }
 });
 
