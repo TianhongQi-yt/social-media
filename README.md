@@ -31,21 +31,27 @@ To access the online demo https://inslike-socialmedia.herokuapp.com/
 
 mobile responsive layout
 
-<p align="center"><img src="img/mobile.png" alt="home page" width="550" /></p>
+<img src="img/mobile.PNG" style="zoom:80%;" />
+
+---
 
 Login and signup page
 
-<p align="center"><img src="img/login.png" alt="login and signup" width="550" /></p>
+<img src="img/login.PNG" style="zoom:80%;" />
+
+---
 
 real-time chats with multiple users and real-time notifications
 
-<p align="center"><img src="img/chat.png" alt="chat" width="550" /></p>
+<img src="img/chat.PNG" style="zoom:80%;" />
 
-<p align="center"><img src="img/notification.png" alt="notifications" width="550" /></p>
+<img src="img/notification.PNG" style="zoom:80%;" />
+
+---
 
 account settings with check own profile, followers, following, notification and password settings
 
-<p align="center"><img src="img/account.png" alt="account" width="550" /></p>
+<img src="img/account.PNG" style="zoom:80%;" />
 
 
 
