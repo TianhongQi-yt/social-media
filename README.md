@@ -1,7 +1,7 @@
 # social-media
  A MERN stack social media website with React, Express, Node.js, Nextjs, MongoDB, and Socket IO for real-time chat & Notifications.
 
-<p align="center"><img src="img/home.png" alt="home page" width="550" /></p>
+<img src="img/home.PNG" style="zoom:80%;" />
 
 ---
 
