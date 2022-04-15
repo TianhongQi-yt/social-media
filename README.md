@@ -25,7 +25,6 @@ To start the project in production environment, run
 yarn start
 ```
 
-To access the online demo https://inslike-socialmedia.herokuapp.com/
 
 ## features
 
